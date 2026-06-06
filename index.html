@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mohit Timalsina — Honors Portfolio</title>
+  <meta name="description" content="University of Cincinnati Honors Portfolio — Mohit Timalsina, Mechanical Engineering & R&D researcher." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Archivo:ital,wght@0,100..900;1,100..900&family=Anton&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap" rel="stylesheet" />
+
+  <!-- React + Babel (no build step) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js" crossorigin></script>
+
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Tweaks panel (replaces omelette TweaksPanel) ── */
+    #tweaks-toggle {
+      position: fixed; bottom: 24px; right: 24px; z-index: 500;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--ink); color: var(--paper);
+      border: none; cursor: pointer; font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,.25);
+      transition: transform .2s, background .3s;
+    }
+    #tweaks-toggle:hover { transform: scale(1.08); }
+    #tweaks-panel {
+      position: fixed; bottom: 80px; right: 24px; z-index: 499;
+      background: var(--ink); color: var(--paper);
+      border-radius: 14px; padding: 20px 22px;
+      min-width: 230px; box-shadow: 0 8px 40px rgba(0,0,0,.35);
+      font-family: var(--font-mono, monospace); font-size: 12px;
+      display: none; flex-direction: column; gap: 14px;
+      transition: background .3s, color .3s;
+    }
+    #tweaks-panel.open { display: flex; }
+    .tweak-section {
+      font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+      opacity: .55; margin-top: 4px;
+    }
+    .tweak-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .tweak-row label { font-size: 11.5px; letter-spacing: .04em; opacity: .8; }
+    .tweak-row select {
+      background: color-mix(in srgb, var(--paper) 12%, transparent);
+      color: var(--paper); border: 1px solid color-mix(in srgb, var(--paper) 25%, transparent);
+      border-radius: 6px; padding: 4px 8px; font-size: 11px;
+      font-family: inherit; cursor: pointer; max-width: 130px;
+    }
+    .tweak-swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tweak-swatch {
+      width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+      border: 2px solid transparent; transition: transform .15s, border-color .15s;
+    }
+    .tweak-swatch.active, .tweak-swatch:hover { transform: scale(1.18); border-color: var(--paper); }
+    .tweak-toggle-wrap { display: flex; align-items: center; gap: 8px; }
+    .tweak-toggle {
+      width: 36px; height: 20px; border-radius: 10px;
+      background: color-mix(in srgb, var(--paper) 25%, transparent);
+      position: relative; cursor: pointer; border: none; padding: 0; transition: background .2s;
+    }
+    .tweak-toggle.on { background: var(--accent); }
+    .tweak-toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 16px; height: 16px; border-radius: 50%; background: var(--paper);
+      transition: transform .2s;
+    }
+    .tweak-toggle.on::after { transform: translateX(16px); }
+
+    /* Year essay two-col */
+    .year-essay { display: grid; grid-template-columns: 1fr 280px; gap: clamp(28px,5vw,70px); margin-top: 40px; align-items: start; }
+    @media (max-width: 820px) { .year-essay { grid-template-columns: 1fr; } }
+    .year-col p { margin-bottom: 18px; color: var(--ink-soft); }
+    .year-col p strong { color: var(--ink); font-weight: 600; }
+    .year-col .pull { font-family: var(--font-display); font-weight: 500; font-size: clamp(22px,2.6vw,32px); line-height: 1.18; letter-spacing: -0.015em; border-left: 2px solid var(--accent); padding-left: 24px; margin: 6px 0 26px; }
+    .year-side { background: color-mix(in srgb, var(--ink) 7%, transparent); border-radius: 12px; padding: 24px 22px; }
+    .year-side-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 16px; }
+    .hl-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .hl-list li { display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+    .hl-list li:last-child { border-bottom: none; padding-bottom: 0; }
+    .hl-t { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
+    .hl-s { font-size: 14px; color: var(--ink-soft); }
+    .hl-n { font-family: var(--font-mono); font-size: 11px; letter-spacing: .05em; color: var(--accent); }
+    .year-close { font-family: var(--font-display); font-weight: 500; font-size: clamp(22px,3vw,36px); line-height: 1.15; letter-spacing: -0.02em; border-left: 3px solid var(--accent); padding-left: 28px; margin-top: 50px; }
+    .year-close em { font-family: var(--font-serif); font-style: italic; color: var(--accent); }
+    .year-lead { margin-top: 32px; }
+    .year-lead em { font-family: var(--font-serif); font-style: italic; color: var(--accent); }
+
+    /* Reflect essay */
+    .reflect-essay p { margin-bottom: 18px; font-size: 17px; color: color-mix(in srgb, var(--paper) 82%, transparent); }
+    .reflect-essay .rlead { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px,3vw,36px); letter-spacing: -0.02em; color: var(--paper); margin-bottom: 22px; }
+    .reflect-essay .pull { font-family: var(--font-display); font-weight: 500; font-size: clamp(20px,2.4vw,28px); line-height: 1.2; letter-spacing: -0.015em; border-left: 2px solid var(--accent); padding-left: 22px; margin: 4px 0 22px; color: var(--paper); }
+
+    /* portrait fix */
+    .about-portrait { position: relative; }
+    .about-portrait img.portrait-img {
+      width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 2px;
+      background: var(--paper-2); border: 1px solid var(--line);
+      display: block;
+    }
+    .portrait-placeholder {
+      width: 100%; aspect-ratio: 4/5; background: var(--paper-2);
+      border: 1px dashed var(--line); border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--ink-soft);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Tweaks panel (outside React root, pure JS) -->
+  <button id="tweaks-toggle" aria-label="Customize appearance">⚙</button>
+  <div id="tweaks-panel" role="dialog" aria-label="Appearance settings">
+    <div class="tweak-section">Theme</div>
+    <div class="tweak-row">
+      <label>Palette</label>
+      <select id="tw-palette"></select>
+    </div>
+    <div class="tweak-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+      <label>Accent</label>
+      <div class="tweak-swatches" id="tw-accents"></div>
+    </div>
+    <div class="tweak-row">
+      <label>Paper grain</label>
+      <div class="tweak-toggle-wrap">
+        <button class="tweak-toggle on" id="tw-grain" aria-pressed="true"></button>
+      </div>
+    </div>
+    <div class="tweak-section">Display type</div>
+    <div class="tweak-row">
+      <label>Headline font</label>
+      <select id="tw-font"></select>
+    </div>
+  </div>
+
+  <script>
+    /* ── Tweaks panel logic ── */
+    (function() {
+      const THEMES = {
+        "Cream":       ["#F4EEE2","#1A1712"],
+        "Snow":        ["#FBFAF7","#101010"],
+        "Sandstone":   ["#ECE2D0","#2A2014"],
+        "Blueprint":   ["#E7EDF2","#16202B"],
+        "Sage":        ["#E9EEE6","#18231A"],
+        "Midnight":    ["#15130E","#F2ECDD"],
+        "Charcoal":    ["#1A1A1C","#ECE9E2"],
+        "Slate Night": ["#12171D","#E6ECF2"],
+      };
+      const FONTS = {
+        "Bricolage Grotesque": '"Bricolage Grotesque","Archivo",sans-serif',
+        "Archivo":             '"Archivo","Bricolage Grotesque",sans-serif',
+        "Anton":               '"Anton","Archivo",sans-serif',
+        "Fraunces":            '"Fraunces","Newsreader",serif',
+      };
+      const ACCENTS = ["#E00122","#000000","#C8102E","#1B5FA8","#2F6B47","#B5532A","#7A5AE0"];
+
+      let state = { theme:"Cream", accent:"#E00122", font:"Bricolage Grotesque", grain:true };
+
+      function luminance(hex) {
+        const h = hex.replace("#","");
+        const r = parseInt(h.slice(0,2),16)/255, g = parseInt(h.slice(2,4),16)/255, b = parseInt(h.slice(4,6),16)/255;
+        return 0.2126*r + 0.7152*g + 0.0722*b;
+      }
+
+      function apply() {
+        const [paper, ink] = THEMES[state.theme] || THEMES["Cream"];
+        const r = document.documentElement;
+        r.style.setProperty("--paper", paper);
+        r.style.setProperty("--ink", ink);
+        r.style.setProperty("--accent", state.accent);
+        r.style.setProperty("--font-display", FONTS[state.font] || FONTS["Bricolage Grotesque"]);
+        const dark = luminance(paper) < 0.42;
+        r.style.setProperty("--grain-blend", dark ? "screen" : "multiply");
+        r.style.setProperty("--grain-opacity", dark ? "0.05" : "0.04");
+        document.body.style.setProperty("--grain-display", state.grain ? "block" : "none");
+        // update swatch active states
+        document.querySelectorAll('.tweak-swatch').forEach(s => {
+          s.classList.toggle('active', s.dataset.accent === state.accent);
+        });
+        const grainBtn = document.getElementById('tw-grain');
+        grainBtn.classList.toggle('on', state.grain);
+        grainBtn.setAttribute('aria-pressed', state.grain);
+      }
+
+      // Populate selects
+      const palSel = document.getElementById('tw-palette');
+      Object.keys(THEMES).forEach(name => {
+        const o = document.createElement('option'); o.value = name; o.textContent = name;
+        palSel.appendChild(o);
+      });
+      palSel.value = state.theme;
+      palSel.addEventListener('change', () => { state.theme = palSel.value; apply(); });
+
+      const fontSel = document.getElementById('tw-font');
+      Object.keys(FONTS).forEach(name => {
+        const o = document.createElement('option'); o.value = name; o.textContent = name;
+        fontSel.appendChild(o);
+      });
+      fontSel.value = state.font;
+      fontSel.addEventListener('change', () => { state.font = fontSel.value; apply(); });
+
+      const accentWrap = document.getElementById('tw-accents');
+      ACCENTS.forEach(hex => {
+        const b = document.createElement('button');
+        b.className = 'tweak-swatch' + (hex === state.accent ? ' active' : '');
+        b.style.background = hex; b.dataset.accent = hex;
+        b.title = hex;
+        b.addEventListener('click', () => { state.accent = hex; apply(); });
+        accentWrap.appendChild(b);
+      });
+
+      document.getElementById('tw-grain').addEventListener('click', function() {
+        state.grain = !state.grain; apply();
+      });
+
+      const toggle = document.getElementById('tweaks-toggle');
+      const panel  = document.getElementById('tweaks-panel');
+      toggle.addEventListener('click', () => panel.classList.toggle('open'));
+      document.addEventListener('click', e => {
+        if (!panel.contains(e.target) && e.target !== toggle) panel.classList.remove('open');
+      });
+
+      apply();
+    })();
+  </script>
+
+  <script type="text/babel" src="image-slot.js"></script>
+  <script type="text/babel" data-type="module">
+    /* ============================================================
+       SECTIONS (sections.jsx converted inline)
+    ============================================================ */
+    const { useState, useEffect, useRef } = React;
+
+    const SECTIONS = [
+      ["top",          "Home"],
+      ["about",        "About"],
+      ["projects",     "Projects"],
+      ["experiences",  "Honors Experience"],
+      ["reflections",  "Gateway Reflection"],
+      ["year",         "Year In Review"],
+      ["involvements", "Involvements"],
+    ];
+
+    function Nav() {
+      const [scrolled, setScrolled] = useState(false);
+      const [active, setActive]     = useState("");
+      useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 40);
+        window.addEventListener("scroll", onScroll, { passive: true });
+        const obs = new IntersectionObserver(
+          entries => entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); }),
+          { rootMargin: "-45% 0px -50% 0px" }
+        );
+        SECTIONS.forEach(([id]) => { const el = document.getElementById(id); if (el) obs.observe(el); });
+        return () => { window.removeEventListener("scroll", onScroll); obs.disconnect(); };
+      }, []);
+      return (
+        <nav className={"nav" + (scrolled ? " scrolled" : "")}>
+          <a className="brand" href="#top">MT<span className="dot">.</span></a>
+          <div className="nav-links">
+            {SECTIONS.map(([id, label]) =>
+              <a key={id} href={"#" + id} className={active === id ? "active" : ""}>{label}</a>
+            )}
+          </div>
+        </nav>
+      );
+    }
+
+    function Hero() {
+      const ref = useRef(null);
+      useEffect(() => {
+        const t = setTimeout(() => ref.current && ref.current.classList.add("in"), 180);
+        return () => clearTimeout(t);
+      }, []);
+      return (
+        <header className="hero" id="top" ref={ref}>
+          <div className="hero-top">
+            <span className="kicker">University Honors Program · 2025—26</span>
+            <div className="hero-meta">University of Cincinnati<br />Global Citizen Scholar</div>
+          </div>
+          <h1>
+            <span className="line l1"><span>Mohit</span></span>
+            <span className="line l2"><span>Timalsina<span className="ital">,</span></span></span>
+            <span className="line l3"><span className="ital">honors portfolio</span></span>
+          </h1>
+          <div className="hero-sub">
+            <p>Mechanical Engineering student and R&amp;D researcher at UC's Metasonics Lab — engineering new gateways for data through solid metal, 7,700 miles from home in Kathmandu.</p>
+            <div className="scroll-cue">Scroll<span className="arrow"></span></div>
+          </div>
+        </header>
+      );
+    }
+
+    function Marquee() {
+      const items = ["Global Citizen Scholar","Mechanical Engineering","UHP Discover","R&D Co-op","Through-Metal Data","Innovation Scholars","Cross-Laminated Timber"];
+      const run = key => items.map((it, i) => <span key={key+i}>{it}<span className="star">✦</span></span>);
+      return (
+        <div className="marquee" aria-hidden="true">
+          <div className="marquee-track">{run("a")}{run("b")}</div>
+        </div>
+      );
+    }
+
+    function About() {
+      return (
+        <section className="section" id="about">
+          <div className="wrap">
+            <span className="kicker reveal">01 / Who I Am</span>
+            <div className="about-grid">
+              <div>
+                <p className="about-lead reveal">
+                  I grew up in <em>Kathmandu</em>, surrounded by mountains, lively streets, and the love of my family. Leaving home was one of the hardest decisions I've ever made.
+                </p>
+                <div className="about-body">
+                  <p className="reveal d1">Family has always been my biggest inspiration. I still remember the nights my dad would help me with school projects, or how my mom's laughter could brighten my day. Their encouragement gave me the courage to leave my comfort zone and chase my dreams.</p>
+                  <p className="reveal d1">I've always been drawn to creativity. As a kid I'd spend hours building Lego sets, dreaming of making something meaningful. Now, as an engineering student, I get to channel that same imagination into <strong>solving real-world problems.</strong></p>
+                  <p className="reveal d2">Fitness has also become a big part of my life — five days a week at the gym, where I find clarity and calm. Even when progress feels slow, I've learned to enjoy the journey. For me, college isn't just about academics; it's about discovering who I am.</p>
+                </div>
+                <dl className="facts reveal d1">
+                  <div className="fact-row"><dt>Hometown</dt><dd>Kathmandu, Nepal</dd></div>
+                  <div className="fact-row"><dt>Major</dt><dd>Mechanical Engineering</dd></div>
+                  <div className="fact-row"><dt>Class of</dt><dd>2029 · Honors</dd></div>
+                  <div className="fact-row"><dt>Research</dt><dd>Metasonics Lab · UC CEAS</dd></div>
+                  <div className="fact-row"><dt>Drawn to</dt><dd>Building · Design · Fitness</dd></div>
+                </dl>
+              </div>
+              <div className="about-portrait reveal d2">
+                <div className="portrait-placeholder">Drop portrait here</div>
+                <div className="portrait-cap"><span>Mohit Timalsina</span><span>Cincinnati, OH</span></div>
+              </div>
+            </div>
+            <div className="stats">
+              <div className="stat reveal"><div className="n">02</div><div className="l">Research Labs</div></div>
+              <div className="stat reveal d1"><div className="n">03</div><div className="l">Honors Experiences</div></div>
+              <div className="stat reveal d2"><div className="n">01</div><div className="l">Through-Metal Gateway</div></div>
+              <div className="stat reveal d3"><div className="n">7,700<span className="unit">mi</span></div><div className="l">Kathmandu → Cincinnati</div></div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Experiences() {
+      return (
+        <section className="section" id="experiences">
+          <div className="wrap">
+            <div className="sec-head reveal">
+              <h2>Honors<br />Experiences</h2>
+              <div className="meta">University Honors Program<br />Curated Reflections<br />2025—2026</div>
+            </div>
+
+            {/* R&D CO-OP — FEATURED */}
+            <article className="exp exp-featured" id="exp-coop">
+              <div className="exp-head">
+                <div className="exp-num reveal">01</div>
+                <div className="exp-title reveal d1">
+                  <h3>R&amp;D Co-op</h3>
+                  <div className="sub">Metasonics Lab — a new gateway for data through solid metal</div>
+                </div>
+                <div className="exp-tag reveal d2">Featured · Research &amp; Development</div>
+              </div>
+              <div className="exp-body">
+                <div className="col reveal d1">
+                  <p>At the University of Cincinnati's Metasonics Lab, my honors co-op sits at the edge of acoustics and data — engineering a new kind of gateway that carries information straight through solid metal using ultrasonic OFDM signals.</p>
+                  <p>I build axisymmetric COMSOL Multiphysics models with stochastic interfacial roughness, validating their transmission coefficients against experimental data to guide transducer design for reliable through-metal throughput.</p>
+                  <p>I also evaluate high-acoustic-impedance materials for ceramic-to-metal bonding — characterizing cure behavior and bond uniformity — and have begun fabricating an impedance-gradient bonding layer to minimize reflection and improve power-transfer efficiency.</p>
+                  <p className="pull">Some gateways aren't built from timber or stone — this one moves data clean through a wall of solid metal.</p>
+                </div>
+                <div className="col reveal d2">
+                  <div className="exp-gallery">
+                    <div>
+                      <div className="portrait-placeholder" style={{aspectRatio:"4/3",height:"auto"}}>Drop Metasonics Lab photo</div>
+                      <div className="gcap">Fig. 01 — Metasonics Lab, UC CEAS</div>
+                    </div>
+                    <ul className="skill-list">
+                      <li><span>COMSOL Multiphysics</span><em>Axisymmetric acoustic modeling</em></li>
+                      <li><span>Ceramic-to-Metal Bonding</span><em>Impedance-gradient layers</em></li>
+                      <li><span>Ultrasonic OFDM</span><em>Through-metal data transmission</em></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            {/* UHP DISCOVER */}
+            <article className="exp" id="exp-discover">
+              <div className="exp-head">
+                <div className="exp-num reveal">02</div>
+                <div className="exp-title reveal d1">
+                  <h3>UHP Discover</h3>
+                  <div className="sub">Hybrid CLT Prototype &amp; the Cairn Installation</div>
+                </div>
+                <div className="exp-tag reveal d2">Global Citizen Scholar</div>
+              </div>
+              <div className="exp-body">
+                <div className="col reveal d1">
+                  <p>During my UHP Discover experience I focused on developing a Hybrid CLT (Cross-Laminated Timber) prototype, while contributing to the design and construction of a Cairn installation. These projects let me engage with material innovation and community-centered design — bridging research with hands-on making.</p>
+                  <p>The prototype involved testing new ways of combining timber with other materials to improve structural performance and sustainability. Through it I gained experience in prototyping, documentation, and iterative design, while learning to approach research with curiosity and adaptability.</p>
+                  <p>The Cairn installation offered a complementary perspective — showing how design can extend beyond technical problem-solving to create spaces that invite reflection and connection.</p>
+                  <p className="pull">Research isn't only about pushing material boundaries — it's about considering the broader social and environmental contexts those materials live in.</p>
+                </div>
+                <div className="col reveal d2">
+                  <div className="portrait-placeholder" style={{aspectRatio:"4/3",height:"auto"}}>Drop CLT prototype photo</div>
+                  <div className="gcap">Building the Hybrid CLT prototype — UC woodshop</div>
+                </div>
+              </div>
+            </article>
+
+            {/* INNOVATION SCHOLARS */}
+            <article className="exp" id="exp-innovation">
+              <div className="exp-head">
+                <div className="exp-num reveal">03</div>
+                <div className="exp-title reveal d1">
+                  <h3>Innovation<br />Scholars</h3>
+                  <div className="sub">Design thinking meets the Innovation Challenge</div>
+                </div>
+                <div className="exp-tag reveal d2">Leadership &amp; Community</div>
+              </div>
+              <div className="exp-body">
+                <div className="col reveal d1">
+                  <p>As part of the University Honors Program I joined the Innovation Scholars Program, collaborating with peers and industry partners to explore how design thinking and entrepreneurial strategy apply to real-world challenges.</p>
+                  <p>Through workshops, projects, and mentorship I learned to approach problems from multiple perspectives, identify user needs, and generate creative solutions — strengthening my ability to work across interdisciplinary teams that blend technical skill with business, communication, and leadership.</p>
+                  <p>Most of all, it reframed what innovation means to me: not just new ideas, but sustainable, impactful solutions that address real human and community needs.</p>
+                  <p className="pull">Innovation isn't only about new ideas — it's about creating impact that lasts.</p>
+                </div>
+                <div className="col reveal d2">
+                  <div className="exp-gallery">
+                    <div>
+                      <div className="portrait-placeholder" style={{aspectRatio:"4/3",height:"auto"}}>Drop Innovation Scholars photo</div>
+                      <div className="gcap">Fig. 05 — Collaborating with peers &amp; industry partners</div>
+                    </div>
+                    <ul className="skill-list">
+                      <li><span>Design Thinking</span><em>User-centered problem framing</em></li>
+                      <li><span>Interdisciplinary Teamwork</span><em>Engineering · business · communication</em></li>
+                      <li><span>Entrepreneurial Strategy</span><em>From idea to sustainable impact</em></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      );
+    }
+
+    function Reflections() {
+      return (
+        <section className="section reflect" id="reflections">
+          <div className="wrap">
+            <span className="kicker reveal">02 / Gateway Reflection</span>
+            <div className="reflect-feature">
+              <figure className="reflect-photo reveal d1">
+                <div className="portrait-placeholder" style={{aspectRatio:"369/253",height:"auto",background:"color-mix(in srgb,var(--paper) 12%,transparent)",border:"1px dashed color-mix(in srgb,var(--paper) 25%,transparent)",color:"color-mix(in srgb,var(--paper) 55%,transparent)"}}>Drop personal photo</div>
+                <figcaption>Kathmandu — the home I left on August 19, 2024.</figcaption>
+              </figure>
+              <div>
+                <blockquote className="reflect-quote reveal d1">
+                  <span className="mark">"</span>I didn't leave to be independent; I left to <em>find independence.</em>
+                </blockquote>
+                <div className="reflect-author reveal d2">— On leaving Kathmandu for Cincinnati</div>
+              </div>
+            </div>
+            <div className="reflect-essay reveal d1">
+              <p className="rlead">On August 19, 2024, I moved countries.</p>
+              <p>I left the place I had lived for nearly 18 years to study in a foreign land — uncertain of what I needed to do, where I was going, who I would meet, and how I would survive. Back in Nepal I had a lifeline: my parents would be there whenever I needed them, and I could eat, sleep, and complain in the comfort of home. Everyone — my parents and my sister — supported me leaving to study, explore, and grow; my father always encouraged me to seek new experiences. But I felt a strange, unsettling sense of what it would mean to be truly on my own.</p>
+              <p>It was a mix of excitement, anxiety, and nervousness unlike anything before — the feeling of passing a point of no return, a phrase that kept echoing in my mind like an alert. I was terrified after my parents left me at the airport. Right before boarding, I thought I had misplaced my passport. For a moment I felt a reflexive reassurance — it might be with my dad — but as I turned my head, I realized my parents were no longer there to pick up after me.</p>
+              <p className="pull">"The strongest steels are forged in the hottest of fires." — my father's voice, cutting through the silence.</p>
+              <p>Some days I feel exhausted and want to leave it all behind — to go home, sit down, and just breathe. But in those moments that distant voice grounds me. I have lived in a bubble my whole life; I have only known comfort, never adversity. I get through adversity and change to improve.</p>
+              <p>Like Monk Ghiatzo said, "Don't concern yourself with what was; concern yourself with what is." Now I keep looking forward — holding my memories close and focusing on the future: new experiences, new people, and a new version of myself I am determined to discover.</p>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function YearOne() {
+      const highlights = [
+        ["Research",                    "Metasonics & Applied Acoustics Lab", "Mentored by Dr. Ahmed Allam"],
+        ["IEEE Int'l Ultrasonics Symp.","Abstract submitted — lead author",   "Presenting this fall, if accepted"],
+        ["UC Drone Club",               "Co-founder",                          "Getting it off the ground"],
+        ["Resident Advisor",            "Starting this fall",                  ""],
+        ["Innovation Challenge",        "Reached the interview round",         "Trying again next time"],
+      ];
+      return (
+        <section className="section" id="year">
+          <div className="wrap">
+            <div className="sec-head reveal">
+              <h2>Year In<br />Review</h2>
+              <div className="meta">A season of spreading roots<br />Sophomore year<br />2025—2026</div>
+            </div>
+            <p className="about-lead year-lead reveal">A <em>season of spreading roots</em> — learning how to grow, and then actually growing into what it means to be a researcher and an adult.</p>
+            <div className="year-essay">
+              <div className="year-col reveal d1">
+                <p>This was my last year as an underclassman, and it turned out to be the one where everything I'd been building toward started to take shape. I spent it bouncing between a research lab, a startup idea, and a club I'm trying to get off the ground — and I learned more from the messy parts than the wins.</p>
+                <p>The biggest piece was my research at the <strong>Metasonics &amp; Applied Acoustics Lab</strong>, where I've been mentored by Dr. Ahmed Allam. I've been developing piezoelectric transducers that send power and data through solid metal — work that runs from COMSOL simulations to mixing epoxy and bonding parts by hand. I wrote the conference abstract entirely on my own, and if it's accepted I'll present at the <strong>IEEE International Ultrasonics Symposium</strong> this fall as a lead author. That sentence still feels strange to write as a sophomore.</p>
+                <p className="pull">I'd rather make the thing than wait to be picked for it.</p>
+                <p>Not everything went smoothly — and that's the part worth keeping. I landed a co-op at GE Appliances and then had the offer revoked because I'm an international student. It stung, but it pushed me to stop waiting for the right door to open and start building my own. That's part of why I'm co-founding the <strong>UC Drone Club</strong> and chasing a startup idea around maintenance bots.</p>
+                <p>I went through the Innovation Challenge and made it to the interview round for the Innovation Scholar program. I didn't get in this time, but I'll be trying again. I'll also be a <strong>Resident Advisor</strong> this fall. What tied all of it together wasn't any single project — it was the people. The conversations with teammates, advisors, and mentors like Dr. Allam taught me as much as any lab did.</p>
+                <p>I also learned things they don't put in a syllabus — like the fact that the government quietly takes its cut from every paycheck before I ever see it. Becoming a researcher and becoming an adult turned out to be the same lesson learned twice.</p>
+              </div>
+              <aside className="year-side reveal d2">
+                <div className="year-side-label">This year, in brief</div>
+                <ul className="hl-list">
+                  {highlights.map(([t, s, n], i) => (
+                    <li key={i}>
+                      <span className="hl-t">{t}</span>
+                      <span className="hl-s">{s}</span>
+                      {n ? <span className="hl-n">{n}</span> : null}
+                    </li>
+                  ))}
+                </ul>
+              </aside>
+            </div>
+            <blockquote className="year-close reveal">
+              Last year taught me that growth comes from stepping outside my comfort zone; this year taught me what to do when the plan falls apart anyway —<em> keep moving, keep building, and let the setbacks point you somewhere better.</em>
+            </blockquote>
+          </div>
+        </section>
+      );
+    }
+
+    function Projects() {
+      const items = [
+        ["P-01","Hybrid CLT Prototype",   "Cross-Laminated Timber · Material Research","Testing new ways to combine timber with other materials for stronger, more sustainable structural assemblies — prototyped, documented, and iterated.","4/3"],
+        ["P-02","Cairn Installation",      "Design · Community · Fabrication",          "A built installation that turns design into a shared space — one that invites reflection and connection beyond pure problem-solving.","4/3"],
+        ["P-03","Your next build",         "Add a project",                              "Drop in a photo and a few lines about another project — a class build, a personal experiment, anything you're proud of.","4/3"],
+      ];
+      return (
+        <section className="section" id="projects">
+          <div className="wrap">
+            <div className="sec-head reveal">
+              <h2>Projects</h2>
+              <div className="meta">Things I've made<br />Hands-on &amp; iterative<br />2025—2026</div>
+            </div>
+            <div className="proj-grid">
+              {items.map(([idx, title, cat, desc, ar], i) => (
+                <article className={"proj-card reveal d" + (i % 3 + 1)} key={idx}>
+                  <div className="proj-media">
+                    <div className="portrait-placeholder" style={{aspectRatio:ar,height:"auto"}}>Drop photo · {title}</div>
+                    <span className="proj-idx">{idx}</span>
+                  </div>
+                  <h3>{title}</h3>
+                  <div className="proj-cat">{cat}</div>
+                  <p className="proj-desc">{desc}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Involvements() {
+      const rows = [
+        ["CEAS Ambassador",          "Tour Guide",        "2025 — Present","Selective College of Engineering organization — leading campus tours for prospective students and families."],
+        ["SRS Leader · Calc I & II", "Peer Tutor",        "2025",          "Tutored students one-on-one in limits, derivatives, and integrals, building tailored study plans alongside faculty."],
+        ["Honors Ambassador",        "Representative",    "2024 — 25",     "Tabling, one-on-one sessions, and presentations sharing the University Honors Program across campus."],
+        ["Blemish Stickers",         "Founder & Operator","2018 — 22",     "Designed and sold custom stickers to brands and teens in Kathmandu — my first taste of building a product."],
+      ];
+      return (
+        <section className="section involve" id="involvements">
+          <div className="wrap">
+            <div className="sec-head reveal">
+              <h2>Involve&shy;ments</h2>
+              <div className="meta">Programs &amp; communities<br />On &amp; beyond campus<br />University of Cincinnati</div>
+            </div>
+            <div className="involve-list">
+              {rows.map(([org, role, period, desc], i) => (
+                <div className="involve-row reveal" key={i}>
+                  <div className="involve-org"><h4>{org}</h4><p>{desc}</p></div>
+                  <div className="involve-role">{role}</div>
+                  <div className="involve-period">{period}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Contact() {
+      return (
+        <section className="section contact" id="contact">
+          <div className="wrap">
+            <span className="kicker reveal">03 / Let's Connect</span>
+            <h2 className="reveal d1">Let's<br />build<br />something.</h2>
+            <a className="contact-email reveal d2" href="mailto:timalsmt@mail.uc.edu">
+              timalsmt@mail.uc.edu <span className="ar">→</span>
+            </a>
+            <div className="foot">
+              <span>© 2026 Mohit Timalsina</span>
+              <span>University Honors Program · University of Cincinnati</span>
+              <a href="mailto:timalsmt@mail.uc.edu">Email ↗</a>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── Reveal + Progress hooks ── */
+    function useReveal() {
+      useEffect(() => {
+        const obs = new IntersectionObserver(
+          entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); obs.unobserve(e.target); } }),
+          { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+        );
+        const scan = () => document.querySelectorAll(".reveal:not(.in)").forEach(el => obs.observe(el));
+        scan();
+        const t = setTimeout(scan, 400);
+        return () => { clearTimeout(t); obs.disconnect(); };
+      }, []);
+    }
+
+    function useProgress(ref) {
+      useEffect(() => {
+        const onScroll = () => {
+          const h = document.documentElement;
+          const max = h.scrollHeight - h.clientHeight;
+          const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+          if (ref.current) ref.current.style.width = pct + "%";
+        };
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+        return () => window.removeEventListener("scroll", onScroll);
+      }, [ref]);
+    }
+
+    /* ── App ── */
+    function App() {
+      const progressRef = useRef(null);
+      useReveal();
+      useProgress(progressRef);
+      return (
+        <React.Fragment>
+          <div className="progress" ref={progressRef}></div>
+          <Nav />
+          <Hero />
+          <Marquee />
+          <About />
+          <Projects />
+          <Experiences />
+          <Reflections />
+          <YearOne />
+          <Involvements />
+          <Contact />
+        </React.Fragment>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
